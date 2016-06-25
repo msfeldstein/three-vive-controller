@@ -1,6 +1,7 @@
 # three-vive-controller
 
-Use the Vive's controller in ThreeJS webVR applications.
+Use the Vive's controller in ThreeJS webVR applications.  It will render a nice model for it, and give it an event based API.
+
 ### Installation
 
 `npm install --save three-vive-controller`
