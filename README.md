@@ -10,7 +10,7 @@ Use the Vive's controller in ThreeJS webVR applications.
 Set up a ThreeJS scene using the THREE.VRControls addon, then create controllers using the ids 0 and 1.
 
 ```
-var ViveController = require('three-vive-controller')(THREE, "/")
+var ViveController = require('three-vive-controller')(THREE)
 var controls = new THREE.VRControls(camera)
 var controller = new ViveController(0, controls)
 scene.add(controller)
