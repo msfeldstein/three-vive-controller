@@ -1,6 +1,9 @@
 # three-vive-controller
 
 Use the Vive's controller in ThreeJS webVR applications.
+# Installation
+
+`npm install --save three-vive-controller`
 
 # Usage
 
