@@ -1,11 +1,11 @@
 # three-vive-controller
 
 Use the Vive's controller in ThreeJS webVR applications.
-# Installation
+### Installation
 
 `npm install --save three-vive-controller`
 
-# Usage
+### Usage
 
 Set up a ThreeJS scene using the THREE.VRControls addon, then create controllers using the ids 0 and 1.
 
@@ -19,12 +19,13 @@ scene.add(controller)
 controller.Events.on(controller.Events.TriggerClicked, () => {
   console.log("Trigger Clicked")
 })
+
 controller.Events.on(controller.Events.TriggerUnclicked, () => {
   console.log("Trigger Unclicked")
 })
 ```
 
-# Available events
+### Available events
 ```
 TriggerClicked -> ()
 TriggerUnclicked -> ()
@@ -33,13 +34,15 @@ PadUntouched -> ()
 PadDragged -> (dx, dy) // Normalized touch deltas
 ```
 
-# Available properties
+### Available properties
 ```
 // Current touch positions, normalized from -1 to 1.  Is null if the pad is not currently being touched.
 controller.padX
 controller.padY
 // Boolean if the pad is currently being touched
 controller.padTouched
+// Boolean if the trigger is currently pressed
+controller.triggerClicked
 ```
 
 See demo for a full example, which can be run with `npm start`
