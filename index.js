@@ -1,6 +1,8 @@
 var EventEmitter = require('eventemitter3');
 
-module.exports = function(THREE) {
+module.exports = function(THREE, packageRoot) {
+    packageRoot = packageRoot || "/node_modules/three-vive-controller/"
+    console.log("Root", packageRoot)
     var OBJLoader = require('three-obj-loader')
     OBJLoader(THREE)
     THREE.ViveController = function(controllerId, vrControls) {
@@ -35,13 +37,14 @@ module.exports = function(THREE) {
             y: 0
         }
 
-        var vivePath = '/node_modules/three-vive-controller/assets/vr_controller_vive_1_5.obj'
+        var vivePath = packageRoot + 'assets/vr_controller_vive_1_5.obj'
+        console.log(vivePath)
         var loader = new THREE.OBJLoader()
         loader.load(vivePath, function(object) {
             var loader = new THREE.TextureLoader()
             model = object.children[0]
-            model.material.map = loader.load('/node_modules/three-vive-controller/assets/onepointfive_texture.png')
-            model.material.specularMap = loader.load('/node_modules/three-vive-controller/assets/onepointfive_spec.png')
+            model.material.map = loader.load(packageRoot + 'assets/onepointfive_texture.png')
+            model.material.specularMap = loader.load(packageRoot + 'assets/onepointfive_spec.png')
             this.add(object)
         }.bind(this))
 
@@ -50,7 +53,6 @@ module.exports = function(THREE) {
             requestAnimationFrame(update);
 
             var gamepad = navigator.getGamepads()[controllerId];
-
             if (gamepad !== undefined && gamepad.pose !== null) {
 
                 var pose = gamepad.pose;
