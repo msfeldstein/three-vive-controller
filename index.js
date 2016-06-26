@@ -49,11 +49,24 @@ module.exports = function(THREE, packageRoot) {
             this.add(object)
         }.bind(this))
 
+        var bindButton = function (eventOnKey, eventOffKey, button, type) {
+          var propertyName = eventOnKey[0].toLowerCase() + eventOnKey.substring(1)
+          var wasActive = this[propertyName]
+          this[propertyName] = button[type]
+          if (!wasActive && button[type]) {
+            this.emit(eventOnKey)
+          } else if (wasActive && !button[type]) {
+            this.emit(eventOffKey)
+          }
+        }.bind(this)
+
         function update() {
             requestAnimationFrame(update);
 
             var gamepad = navigator.getGamepads()[controllerId];
             if (gamepad !== undefined && gamepad.pose !== null) {
+                c.visible = true;
+
                 var padButton = gamepad.buttons[0]
                 var triggerButton = gamepad.buttons[1]
                 var gripButton = gamepad.buttons[2]
@@ -68,28 +81,11 @@ module.exports = function(THREE, packageRoot) {
                 c.matrix.multiplyMatrices(c.standingMatrix, c.matrix);
                 c.matrixWorldNeedsUpdate = true;
 
-                c.visible = true;
-                var wasTouched = c.padTouched
-                var wasPadPressed = c.padPressed
-                c.padTouched = padButton.touched
-                c.padPressed = padButton.pressed
-                if (c.padTouched && !wasTouched) {
-                    c.emit(c.PadTouched)
-                }
-                if (!c.padTouched && wasTouched) {
-                    c.emit(c.PadUntouched)
-                }
-                if (c.padPressed && !wasPadPressed) {
-                  c.emit(c.PadPressed)
-                }
-                if (!c.padPressed && wasPadPressed) {
-                  c.emit(c.PadUnpressed)
-                }
 
-                var wasMenuPressed = c.menuPressed
-                c.menuPressed = menuButton.pressed
-                if (c.menuPressed && !wasMenuPressed) { c.emit(c.MenuPressed) }
-                if (!c.menuPressed && wasMenuPressed) { c.emit(c.MenuUnpressed) }
+                bindButton(c.PadTouched, c.PadUntouched, padButton, "touched")
+                bindButton(c.PadPressed, c.PadUnpressed, padButton, "pressed")
+                bindButton(c.MenuPressed, c.MenuUnpressed, menuButton, "pressed")
+                bindButton(c.Gripped, c.Ungripped, gripButton, "pressed")
 
                 var wasTriggerClicked = c.triggerClicked
                 c.triggerClicked = triggerButton.value == 1
@@ -98,15 +94,6 @@ module.exports = function(THREE, packageRoot) {
                 }
                 if (wasTriggerClicked && !c.triggerClicked) {
                     c.emit(c.TriggerUnclicked)
-                }
-
-                var wasGripped = c.gripped
-                c.gripped = gripButton.pressed
-                if (!wasGripped && c.gripped) {
-                  c.emit(c.Gripped)
-                }
-                if (wasGripped && !c.gripped) {
-                  c.emit(c.Ungripped)
                 }
 
                 c.padX = gamepad.axes[0]
@@ -126,8 +113,6 @@ module.exports = function(THREE, packageRoot) {
                     lastPadPosition.y = null
                 }
                 c.triggerLevel = gamepad.buttons[1].value
-
-
 
             } else {
                 c.visible = false;
