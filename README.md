@@ -2,6 +2,8 @@
 
 Use the Vive's controller in ThreeJS webVR applications.  It will render a nice model for it, and give it an event based API.
 
+Try the [demo](https://msfeldstein.github.io/three-vive-controller/demo/) in a webVR enabled browser
+
 ### Installation
 
 `npm install --save three-vive-controller`
