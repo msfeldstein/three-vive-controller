@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "budo ./demo/index.js -o -l",
+    "build": "browserify demo/index.js > demo/build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Michael Feldstein",
