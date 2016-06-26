@@ -30,8 +30,12 @@ controller.on(controller.TriggerUnclicked, () => {
 ```
 TriggerClicked -> ()
 TriggerUnclicked -> ()
+MenuPressed -> ()
+MenuUnpressed -> ()
 PadTouched -> ()
 PadUntouched -> ()
+PadPressed -> ()
+PadUnpressed -> ()
 PadDragged -> (dx, dy) // Normalized touch deltas
 Connected -> () // Called when the controller first becomes available
 ```
@@ -47,6 +51,8 @@ controller.padTouched
 controller.triggerClicked
 // Is there a vive controller available for this controller. Disconnection doesn't seem to work yet, so if it turns off, it still shows as connected.
 controller.connected
+// How far the trigger is pulled from 0-1
+controller.triggerLevel
 ```
 
 See demo for a full example, which can be run with `npm start`
