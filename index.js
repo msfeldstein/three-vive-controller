@@ -1,35 +1,38 @@
 var EventEmitter = require('eventemitter3');
-
+var extend = require('./util/extend')
 module.exports = function(THREE, packageRoot) {
     packageRoot = packageRoot || "/node_modules/three-vive-controller/"
 
     var OBJLoader = require('three-obj-loader')
     OBJLoader(THREE)
-    
+
     THREE.ViveController = function(controllerId, vrControls) {
 
         THREE.Object3D.call(this);
+        extend(this, new EventEmitter)
 
-        var Events = new EventEmitter()
-        Events.PadTouched = "PadTouched"
-        Events.PadUntouched = "PadUntouched"
-        Events.TriggerClicked = "TriggerClicked"
-        Events.TriggerUnclicked = "TriggerUnclicked"
-        Events.MenuClicked = "MenuClicked"
-        Events.MenuUnclicked = "MenuUnclicked"
-        Events.Gripped = "Gripped"
-        Events.Ungripped = "Ungripped"
-        Events.PadDragged = "PadDragged"
-        Events.Connected = "Connected"
-        Events.Disconnected = "Disconnected"
-        this.Events = Events
+        this.PadTouched = "PadTouched"
+        this.PadUntouched = "PadUntouched"
+        this.PadPressed = "PadPressed"
+        this.PadUnpressed = "PadUnpressed"
+        this.TriggerClicked = "TriggerClicked"
+        this.TriggerUnclicked = "TriggerUnclicked"
+        this.MenuClicked = "MenuClicked"
+        this.MenuUnclicked = "MenuUnclicked"
+        this.Gripped = "Gripped"
+        this.Ungripped = "Ungripped"
+        this.PadDragged = "PadDragged"
+        this.MenuPressed = "MenuPressed"
+        this.MenuUnpressed = "MenuUnpressed"
+        this.Connected = "Connected"
+        this.Disconnected = "Disconnected"
 
         this.matrixAutoUpdate = false;
         this.standingMatrix = vrControls.getStandingMatrix()
 
         this.padTouched = false
         this.connected = false
-        var scope = this;
+        var c = this;
 
         var lastPadPosition = {
             x: 0,
@@ -47,70 +50,89 @@ module.exports = function(THREE, packageRoot) {
         }.bind(this))
 
         function update() {
-
             requestAnimationFrame(update);
 
             var gamepad = navigator.getGamepads()[controllerId];
             if (gamepad !== undefined && gamepad.pose !== null) {
-                if (!scope.connected) Events.emit(Events.Connected)
+                var padButton = gamepad.buttons[0]
+                var triggerButton = gamepad.buttons[1]
+                var gripButton = gamepad.buttons[2]
+                var menuButton = gamepad.buttons[3]
+
+                if (!c.connected) c.emit(c.Connected)
+
                 var pose = gamepad.pose;
+                c.position.fromArray(pose.position);
+                c.quaternion.fromArray(pose.orientation);
+                c.matrix.compose(c.position, c.quaternion, c.scale);
+                c.matrix.multiplyMatrices(c.standingMatrix, c.matrix);
+                c.matrixWorldNeedsUpdate = true;
 
-                scope.position.fromArray(pose.position);
-                scope.quaternion.fromArray(pose.orientation);
-                scope.matrix.compose(scope.position, scope.quaternion, scope.scale);
-                scope.matrix.multiplyMatrices(scope.standingMatrix, scope.matrix);
-                scope.matrixWorldNeedsUpdate = true;
-
-                scope.visible = true;
-                var wasTouched = scope.padTouched
-                scope.padTouched = gamepad.buttons[0].touched
-                if (scope.padTouched && !wasTouched) {
-                    scope.Events.emit(Events.PadTouched)
+                c.visible = true;
+                var wasTouched = c.padTouched
+                var wasPadPressed = c.padPressed
+                c.padTouched = padButton.touched
+                c.padPressed = padButton.pressed
+                if (c.padTouched && !wasTouched) {
+                    c.emit(c.PadTouched)
+                }
+                if (!c.padTouched && wasTouched) {
+                    c.emit(c.PadUntouched)
+                }
+                if (c.padPressed && !wasPadPressed) {
+                  c.emit(c.PadPressed)
+                }
+                if (!c.padPressed && wasPadPressed) {
+                  c.emit(c.PadUnpressed)
                 }
 
-                if (!scope.padTouched && wasTouched) {
-                    Events.emit(Events.PadUntouched)
+                var wasMenuPressed = c.menuPressed
+                c.menuPressed = menuButton.pressed
+                if (c.menuPressed && !wasMenuPressed) { c.emit(c.MenuPressed) }
+                if (!c.menuPressed && wasMenuPressed) { c.emit(c.MenuUnpressed) }
+
+                var wasTriggerClicked = c.triggerClicked
+                c.triggerClicked = triggerButton.value == 1
+                if (!wasTriggerClicked && c.triggerClicked) {
+                    c.emit(c.TriggerClicked)
+                }
+                if (wasTriggerClicked && !c.triggerClicked) {
+                    c.emit(c.TriggerUnclicked)
                 }
 
-                var wasTriggerClicked = scope.triggerClicked
-                scope.triggerClicked = gamepad.buttons[1].value == 1
-                if (!wasTriggerClicked && scope.triggerClicked) {
-                    Events.emit(Events.TriggerClicked)
+                var wasGripped = c.gripped
+                c.gripped = gripButton.pressed
+                if (!wasGripped && c.gripped) {
+                  c.emit(c.Gripped)
                 }
-                if (wasTriggerClicked && !scope.triggerClicked) {
-                    Events.emit(Events.TriggerUnclicked)
-                }
-
-                var wasMenuClicked = scope.menuClicked
-                scope.menuClicked = gamepad.buttons[2].pressed
-                if (!wasMenuClicked && scope.menuClicked) {
-                    Events.emit(Events.MenuClicked)
+                if (wasGripped && !c.gripped) {
+                  c.emit(c.Ungripped)
                 }
 
-                scope.padX = gamepad.axes[0]
-                scope.padY = gamepad.axes[1]
+                c.padX = gamepad.axes[0]
+                c.padY = gamepad.axes[1]
 
-                if (scope.padTouched && Events.listeners(Events.PadDragged) && lastPadPosition.x != null) {
-                    var dx = scope.padX - lastPadPosition.x
-                    var dy = scope.padY - lastPadPosition.y
-                    Events.emit(Events.PadDragged, dx, dy)
+                if (c.padTouched && c.listeners(c.PadDragged) && lastPadPosition.x != null) {
+                    var dx = c.padX - lastPadPosition.x
+                    var dy = c.padY - lastPadPosition.y
+                    c.emit(c.PadDragged, dx, dy)
                 }
 
-                if (scope.padTouched) {
-                    lastPadPosition.x = scope.padX
-                    lastPadPosition.y = scope.padY
+                if (c.padTouched) {
+                    lastPadPosition.x = c.padX
+                    lastPadPosition.y = c.padY
                 } else {
                     lastPadPosition.x = null
                     lastPadPosition.y = null
                 }
-                scope.triggerLevel = gamepad.buttons[1].value
+                c.triggerLevel = gamepad.buttons[1].value
 
 
 
             } else {
-                scope.visible = false;
+                c.visible = false;
             }
-            scope.connected = !!gamepad
+            c.connected = !!gamepad
 
         }
 

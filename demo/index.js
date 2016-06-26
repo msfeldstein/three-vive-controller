@@ -33,39 +33,81 @@ controls.standing = true
 var controller = new ViveController(0, controls)
 scene.add(controller)
 
+controller.on(controller.Connected, () => {
+  console.log("Connected")
+})
+
+
+// Pad
 var sphere = new THREE.Mesh(
-  new THREE.SphereGeometry(.1,32,32),
+  new THREE.SphereGeometry(.03,32,32),
   new THREE.MeshPhongMaterial({color: 0x32f3e2})
 )
 sphere.position.z = -.2
 controller.add(sphere)
 sphere.visible = false
-controller.Events.on(controller.Events.PadTouched, () => {
+controller.on(controller.PadTouched, () => {
   sphere.visible = true
 })
-controller.Events.on(controller.Events.PadUntouched, () => {
+controller.on(controller.PadUntouched, () => {
   sphere.visible = false
   sphere.position.x = 0
   sphere.position.z = -.2
 })
-controller.Events.on(controller.Events.PadDragged, (dx, dy) => {
+controller.on(controller.PadDragged, (dx, dy) => {
   sphere.position.x += dx / 5
-  sphere.position.z += dy / 5
+  sphere.position.z -= dy / 5
+})
+controller.on(controller.PadPressed, () => { sphere.scale.y = 2})
+controller.on(controller.PadUnpressed, () => { sphere.scale.y = 1})
+
+
+// Grip
+var gripBox = new THREE.Mesh(
+  new THREE.BoxGeometry(0.2, 0.02, 0.02),
+  new THREE.MeshPhongMaterial({color: 0x20ee20})
+)
+gripBox.position.set(0, -0.03, 0.1)
+gripBox.visible = false
+controller.add(gripBox)
+controller.on(controller.Gripped, () => {
+  gripBox.visible = true
+})
+controller.on(controller.Ungripped, () => {
+  gripBox.visible = false
 })
 
-controller.Events.on(controller.Events.Connected, () => {
-  console.log("Connected")
+
+// Trigger
+var triggerBox = new THREE.Mesh(
+  new THREE.BoxGeometry(0.02, 0.02, 0.1),
+  new THREE.MeshPhongMaterial({color: 0x20ee20})
+)
+triggerBox.rotation.x = -Math.PI / 4
+triggerBox.position.y = -.08
+triggerBox.visible = false
+controller.add(triggerBox)
+controller.on(controller.TriggerClicked, () => {
+  triggerBox.visible = true
+})
+controller.on(controller.TriggerUnclicked, () => {
+  triggerBox.visible = false
 })
 
-controller.Events.on(controller.Events.Disonnected, () => {
-  console.log("Disconnected")
-})
 
-controller.Events.on(controller.Events.TriggerClicked, () => {
-  controller.scale.set(1.3, 1.3, 1.3)
+// Menu
+var menuBox = new THREE.Mesh(
+  new THREE.BoxGeometry(0.02, 0.1, 0.02),
+  new THREE.MeshPhongMaterial({color: 0x20ee20})
+)
+menuBox.position.set(0, 0.08, 0.02)
+menuBox.visible = false
+controller.add(menuBox)
+controller.on(controller.MenuPressed, () => {
+  menuBox.visible = true
 })
-controller.Events.on(controller.Events.TriggerUnclicked, () => {
-  controller.scale.set(1, 1, 1)
+controller.on(controller.MenuUnpressed, () => {
+  menuBox.visible = false
 })
 
 var animate = function() {

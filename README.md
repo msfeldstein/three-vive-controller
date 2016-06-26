@@ -16,12 +16,12 @@ var controls = new THREE.VRControls(camera)
 var controller = new ViveController(0, controls)
 scene.add(controller)
 
-// Listen to events on the controller.Events emitter
-controller.Events.on(controller.Events.TriggerClicked, () => {
+// Listen to events on the controller emitter
+controller.on(controller.TriggerClicked, () => {
   console.log("Trigger Clicked")
 })
 
-controller.Events.on(controller.Events.TriggerUnclicked, () => {
+controller.on(controller.TriggerUnclicked, () => {
   console.log("Trigger Unclicked")
 })
 ```
