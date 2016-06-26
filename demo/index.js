@@ -1,6 +1,6 @@
 var THREE = require('three')
 var VRControls = require('./VRControls')(THREE)
-var ViveController = require('..')(THREE, "/")
+var ViveController = require('..')(THREE, "../")
 var camera, scene, renderer;
 var effect, controls;
 var room;
