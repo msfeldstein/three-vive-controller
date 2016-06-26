@@ -95,6 +95,7 @@ module.exports = function(THREE, packageRoot) {
                 if (wasTriggerClicked && !c.triggerClicked) {
                     c.emit(c.TriggerUnclicked)
                 }
+                c.triggerLevel = triggerButton.value
 
                 c.padX = gamepad.axes[0]
                 c.padY = gamepad.axes[1]
@@ -112,7 +113,7 @@ module.exports = function(THREE, packageRoot) {
                     lastPadPosition.x = null
                     lastPadPosition.y = null
                 }
-                c.triggerLevel = gamepad.buttons[1].value
+
 
             } else {
                 c.visible = false;

@@ -81,17 +81,16 @@ controller.on(controller.Ungripped, () => {
 // Trigger
 var triggerBox = new THREE.Mesh(
   new THREE.BoxGeometry(0.02, 0.02, 0.1),
-  new THREE.MeshPhongMaterial({color: 0x20ee20})
+  new THREE.MeshPhongMaterial({color: 0xffffff, transparent: true})
 )
 triggerBox.rotation.x = -Math.PI / 4
 triggerBox.position.y = -.08
-triggerBox.visible = false
 controller.add(triggerBox)
 controller.on(controller.TriggerClicked, () => {
-  triggerBox.visible = true
+  triggerBox.material.color.set(0x20ee20)
 })
 controller.on(controller.TriggerUnclicked, () => {
-  triggerBox.visible = false
+  triggerBox.material.color.set(0xffffff)
 })
 
 
@@ -113,6 +112,7 @@ controller.on(controller.MenuUnpressed, () => {
 var animate = function() {
   requestAnimationFrame(animate)
   camera.lookAt(controller.position)
+  triggerBox.material.opacity = controller.triggerLevel
   renderer.render(scene, camera)
 }
 animate()
