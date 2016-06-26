@@ -27,7 +27,7 @@ renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
-controls = new THREE.VRControls(camera)
+controls = new THREE.VRControls(camera, showWebVRError)
 controls.standing = true
 
 var controller = new ViveController(0, controls)
@@ -117,3 +117,10 @@ var animate = function() {
   renderer.render(scene, camera)
 }
 animate()
+
+function showWebVRError() {
+  var div = document.createElement('div')
+  div.className = 'error-dialog'
+  div.innerText = "WebVR is not available.  Get a custom build from http://webvr.info/get-chrome"
+  document.body.appendChild(div)
+}
