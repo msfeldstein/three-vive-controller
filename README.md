@@ -33,6 +33,7 @@ TriggerUnclicked -> ()
 PadTouched -> ()
 PadUntouched -> ()
 PadDragged -> (dx, dy) // Normalized touch deltas
+Connected -> () // Called when the controller first becomes available
 ```
 
 ### Available properties
@@ -44,6 +45,8 @@ controller.padY
 controller.padTouched
 // Boolean if the trigger is currently pressed
 controller.triggerClicked
+// Is there a vive controller available for this controller. Disconnection doesn't seem to work yet, so if it turns off, it still shows as connected.
+controller.connected
 ```
 
 See demo for a full example, which can be run with `npm start`
