@@ -121,6 +121,6 @@ animate()
 function showWebVRError() {
   var div = document.createElement('div')
   div.className = 'error-dialog'
-  div.innerText = "WebVR is not available.  Get a custom build from http://webvr.info/get-chrome"
+  div.innerHTML = "WebVR is not available.  Get a custom build from <a href='http://webvr.info/get-chrome'>http://webvr.info/get-chrome</a>"
   document.body.appendChild(div)
 }
