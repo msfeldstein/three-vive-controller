@@ -42,6 +42,8 @@ module.exports = function(THREE) {
             // Deprecated API.
             navigator.getVRDevices().then(gotVRDevices);
 
+        } else {
+          if (onError) onError('WebVR is not available.  You need a custom build from webvr.info')
         }
 
         // the Rift SDK returns the position in meters
