@@ -113,6 +113,7 @@ var animate = function() {
   requestAnimationFrame(animate)
   camera.lookAt(controller.position)
   triggerBox.material.opacity = controller.triggerLevel
+  triggerBox.scale.z = controller.triggerLevel
   renderer.render(scene, camera)
 }
 animate()
