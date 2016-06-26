@@ -2,9 +2,10 @@ var EventEmitter = require('eventemitter3');
 
 module.exports = function(THREE, packageRoot) {
     packageRoot = packageRoot || "/node_modules/three-vive-controller/"
-    console.log("Root", packageRoot)
+
     var OBJLoader = require('three-obj-loader')
     OBJLoader(THREE)
+    
     THREE.ViveController = function(controllerId, vrControls) {
 
         THREE.Object3D.call(this);
@@ -19,17 +20,15 @@ module.exports = function(THREE, packageRoot) {
         Events.Gripped = "Gripped"
         Events.Ungripped = "Ungripped"
         Events.PadDragged = "PadDragged"
+        Events.Connected = "Connected"
+        Events.Disconnected = "Disconnected"
         this.Events = Events
 
         this.matrixAutoUpdate = false;
         this.standingMatrix = vrControls.getStandingMatrix()
 
-        this.onPadTouched = new EventEmitter()
-        this.onPadUntouched = new EventEmitter()
-        this.onTriggerClicked = new EventEmitter()
-        this.onTriggerUnclicked = new EventEmitter()
-
         this.padTouched = false
+        this.connected = false
         var scope = this;
 
         var lastPadPosition = {
@@ -38,7 +37,6 @@ module.exports = function(THREE, packageRoot) {
         }
 
         var vivePath = packageRoot + 'assets/vr_controller_vive_1_5.obj'
-        console.log(vivePath)
         var loader = new THREE.OBJLoader()
         loader.load(vivePath, function(object) {
             var loader = new THREE.TextureLoader()
@@ -54,7 +52,7 @@ module.exports = function(THREE, packageRoot) {
 
             var gamepad = navigator.getGamepads()[controllerId];
             if (gamepad !== undefined && gamepad.pose !== null) {
-
+                if (!scope.connected) Events.emit(Events.Connected)
                 var pose = gamepad.pose;
 
                 scope.position.fromArray(pose.position);
@@ -110,10 +108,9 @@ module.exports = function(THREE, packageRoot) {
 
 
             } else {
-
                 scope.visible = false;
-
             }
+            scope.connected = !!gamepad
 
         }
 

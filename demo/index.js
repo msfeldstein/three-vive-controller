@@ -53,6 +53,14 @@ controller.Events.on(controller.Events.PadDragged, (dx, dy) => {
   sphere.position.z += dy / 5
 })
 
+controller.Events.on(controller.Events.Connected, () => {
+  console.log("Connected")
+})
+
+controller.Events.on(controller.Events.Disonnected, () => {
+  console.log("Disconnected")
+})
+
 controller.Events.on(controller.Events.TriggerClicked, () => {
   controller.scale.set(1.3, 1.3, 1.3)
 })
