@@ -39,6 +39,9 @@ module.exports = function(THREE, packageRoot) {
             y: 0
         }
 
+        var lastPosePosition = [0, 0, 0]
+        var lastPoseOrientation = [0, 0, 0, 1]
+
         var vivePath = packageRoot + 'assets/vr_controller_vive_1_5.obj'
         var loader = new THREE.OBJLoader()
         loader.load(vivePath, function(object) {
@@ -75,11 +78,13 @@ module.exports = function(THREE, packageRoot) {
                 if (!c.connected) c.emit(c.Connected)
 
                 var pose = gamepad.pose;
-                c.position.fromArray(pose.position);
-                c.quaternion.fromArray(pose.orientation);
-                c.matrix.compose(c.position, c.quaternion, c.scale);
-                c.matrix.multiplyMatrices(c.standingMatrix, c.matrix);
-                c.matrixWorldNeedsUpdate = true;
+                lastPosePosition = pose.position || lastPosePosition
+                lastPoseOrientation = pose.orientation || lastPoseOrientation
+                c.position.fromArray(lastPosePosition)
+                c.quaternion.fromArray(lastPoseOrientation)
+                c.matrix.compose(c.position, c.quaternion, c.scale)
+                c.matrix.multiplyMatrices(c.standingMatrix, c.matrix)
+                c.matrixWorldNeedsUpdate = true
 
 
                 bindButton(c.PadTouched, c.PadUntouched, padButton, "touched")
