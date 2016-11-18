@@ -32,15 +32,16 @@ module.exports = function(THREE, packageRoot) {
 
         this.padTouched = false
         this.connected = false
+        this.tracked = false
+        this.lastPosePosition = [0, 0, 0]
+        this.lastPoseOrientation = [0, 0, 0, 1]
+
         var c = this;
 
         var lastPadPosition = {
             x: 0,
             y: 0
         }
-
-        var lastPosePosition = [0, 0, 0]
-        var lastPoseOrientation = [0, 0, 0, 1]
 
         var vivePath = packageRoot + 'assets/vr_controller_vive_1_5.obj'
         var loader = new THREE.OBJLoader()
@@ -78,8 +79,16 @@ module.exports = function(THREE, packageRoot) {
                 if (!c.connected) c.emit(c.Connected)
 
                 var pose = gamepad.pose;
-                lastPosePosition = pose.position || lastPosePosition
-                lastPoseOrientation = pose.orientation || lastPoseOrientation
+
+                if(pose.position != null && pose.orientation != null) {
+                    c.tracked = true
+                    c.lastPosePosition = pose.position
+                    c.lastPoseOrientation = pose.orientation
+                }
+                else {
+                    c.tracked = false
+                }
+
                 c.position.fromArray(lastPosePosition)
                 c.quaternion.fromArray(lastPoseOrientation)
                 c.matrix.compose(c.position, c.quaternion, c.scale)
