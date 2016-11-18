@@ -89,8 +89,8 @@ module.exports = function(THREE, packageRoot) {
                     c.tracked = false
                 }
 
-                c.position.fromArray(lastPosePosition)
-                c.quaternion.fromArray(lastPoseOrientation)
+                c.position.fromArray(c.lastPosePosition)
+                c.quaternion.fromArray(c.lastPoseOrientation)
                 c.matrix.compose(c.position, c.quaternion, c.scale)
                 c.matrix.multiplyMatrices(c.standingMatrix, c.matrix)
                 c.matrixWorldNeedsUpdate = true
