@@ -32,6 +32,10 @@ module.exports = function(THREE, packageRoot) {
 
         this.padTouched = false
         this.connected = false
+        this.tracked = false
+        this.lastPosePosition = [0, 0, 0]
+        this.lastPoseOrientation = [0, 0, 0, 1]
+
         var c = this;
 
         var lastPadPosition = {
@@ -76,11 +80,21 @@ module.exports = function(THREE, packageRoot) {
                 if (!c.connected) c.emit(c.Connected)
 
                 var pose = gamepad.pose;
-                c.position.fromArray(pose.position);
-                c.quaternion.fromArray(pose.orientation);
-                c.matrix.compose(c.position, c.quaternion, c.scale);
-                c.matrix.multiplyMatrices(c.standingMatrix, c.matrix);
-                c.matrixWorldNeedsUpdate = true;
+
+                if(pose.position != null && pose.orientation != null) {
+                    c.tracked = true
+                    c.lastPosePosition = pose.position
+                    c.lastPoseOrientation = pose.orientation
+                }
+                else {
+                    c.tracked = false
+                }
+
+                c.position.fromArray(c.lastPosePosition)
+                c.quaternion.fromArray(c.lastPoseOrientation)
+                c.matrix.compose(c.position, c.quaternion, c.scale)
+                c.matrix.multiplyMatrices(c.standingMatrix, c.matrix)
+                c.matrixWorldNeedsUpdate = true
 
 
                 bindButton(c.PadTouched, c.PadUntouched, padButton, "touched")
