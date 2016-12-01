@@ -69,7 +69,7 @@ module.exports = function(THREE, packageRoot) {
             requestAnimationFrame(update);
 
             var gamepad = navigator.getGamepads()[controllerId];
-            if (gamepad && gamepad.pose !== null) {
+            if (gamepad && gamepad.pose) {
                 c.visible = true;
 
                 var padButton = gamepad.buttons[0]
