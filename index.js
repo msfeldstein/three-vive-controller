@@ -6,7 +6,11 @@ module.exports = function(THREE, packageRoot) {
     var OBJLoader = require('three-obj-loader')
     OBJLoader(THREE)
 
-    THREE.ViveController = function(controllerId, vrControls) {
+    THREE.ViveController = function(controllerId, vrControls, startUpdating) {
+        
+        if (startUpdating === undefined) {
+            startUpdating = true;
+        }
 
         THREE.Object3D.call(this);
         extend(this, new EventEmitter)
@@ -64,8 +68,6 @@ module.exports = function(THREE, packageRoot) {
         }.bind(this)
 
         this.update = function() {
-            requestAnimationFrame(this.update);
-
             var gamepad = navigator.getGamepads()[controllerId];
             if (gamepad && gamepad.pose) {
                 this.visible = true;
@@ -134,8 +136,15 @@ module.exports = function(THREE, packageRoot) {
             this.connected = !!gamepad
 
         }
-
-        this.update();
+        
+        this.startUpdating = function() {
+            this.update();
+            requestAnimationFrame(this.startUpdating);
+        }.bind(this)
+        
+        if (startUpdating) {
+            this.startUpdating();
+        }
 
     };
 

@@ -11,7 +11,9 @@
   "author": "Michael Feldstein",
   "license": "ISC",
   "dependencies": {
+    "browserify": "^13.1.1",
     "eventemitter3": "^1.2.0",
+    "three": "^0.82.1",
     "three-obj-loader": "^1.0.2"
   }
 }
