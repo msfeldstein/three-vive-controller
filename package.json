@@ -8,6 +8,13 @@
     "build": "browserify demo/index.js > demo/build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msfeldstein/three-vive-controller.git"
+  },
+  "bugs": {
+    "url": "https://github.com/msfeldstein/three-vive-controller/issues"
+  },
   "author": "Michael Feldstein",
   "license": "ISC",
   "dependencies": {
