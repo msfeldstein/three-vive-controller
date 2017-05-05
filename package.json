@@ -21,7 +21,7 @@
     "browserify": "^13.1.1",
     "budo": "^9.3.0",
     "eventemitter3": "^1.2.0",
-    "three": "^0.82.1",
+    "three": "^0.85.2",
     "three-obj-loader": "^1.0.2"
   }
 }
