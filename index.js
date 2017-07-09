@@ -21,6 +21,7 @@ module.exports = function(THREE, packageRoot) {
         this.PadUnpressed = "PadUnpressed"
         this.TriggerClicked = "TriggerClicked"
         this.TriggerUnclicked = "TriggerUnclicked"
+        this.TriggerLevel = "TriggerLevel"
         this.MenuClicked = "MenuClicked"
         this.MenuUnclicked = "MenuUnclicked"
         this.Gripped = "Gripped"
@@ -34,6 +35,7 @@ module.exports = function(THREE, packageRoot) {
         this.matrixAutoUpdate = false;
         this.standingMatrix = vrControls.getStandingMatrix()
 
+        this.controllerId = controllerId
         this.padTouched = false
         this.connected = false
         this.tracked = false
@@ -44,12 +46,13 @@ module.exports = function(THREE, packageRoot) {
             x: 0,
             y: 0
         }
+        var lastTriggerLevel = 0
 
         var vivePath = packageRoot + 'assets/vr_controller_vive_1_5.obj'
         var loader = new THREE.OBJLoader()
         loader.load(vivePath, function(object) {
             var loader = new THREE.TextureLoader()
-            model = object.children[0]
+            var model = object.children[0]
             model.material.map = loader.load(packageRoot + 'assets/onepointfive_texture.png')
             model.material.specularMap = loader.load(packageRoot + 'assets/onepointfive_spec.png')
             model.material.color = new THREE.Color(1, 1, 1)
@@ -69,7 +72,7 @@ module.exports = function(THREE, packageRoot) {
 
         this.update = function() {
             var gamepad = navigator.getGamepads()[controllerId];
-            console.log(gamepad)
+
             if (gamepad && gamepad.pose) {
                 this.visible = true;
 
@@ -103,6 +106,13 @@ module.exports = function(THREE, packageRoot) {
                 bindButton(this.MenuPressed, this.MenuUnpressed, menuButton, "pressed")
                 bindButton(this.Gripped, this.Ungripped, gripButton, "pressed")
 
+                this.triggerLevel = triggerButton.value
+                if (this.triggerLevel !== lastTriggerLevel) {
+                    this.emit(this.TriggerLevel, this.triggerLevel)
+                }
+                lastTriggerLevel = this.triggerLevel
+
+                // Ensure click event is emitted after trigger level reaches 1.
                 var wasTriggerClicked = this.triggerClicked
                 this.triggerClicked = triggerButton.value == 1
                 if (!wasTriggerClicked && this.triggerClicked) {
@@ -111,7 +121,6 @@ module.exports = function(THREE, packageRoot) {
                 if (wasTriggerClicked && !this.triggerClicked) {
                     this.emit(this.TriggerUnclicked)
                 }
-                this.triggerLevel = triggerButton.value
 
                 this.padX = gamepad.axes[0]
                 this.padY = gamepad.axes[1]
