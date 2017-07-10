@@ -52,10 +52,10 @@ module.exports = function(THREE, packageRoot) {
         var loader = new THREE.OBJLoader()
         loader.load(vivePath, function(object) {
             var loader = new THREE.TextureLoader()
-            var model = object.children[0]
-            model.material.map = loader.load(packageRoot + 'assets/onepointfive_texture.png')
-            model.material.specularMap = loader.load(packageRoot + 'assets/onepointfive_spec.png')
-            model.material.color = new THREE.Color(1, 1, 1)
+            this.model = object.children[0]
+            this.model.material.map = loader.load(packageRoot + 'assets/onepointfive_texture.png')
+            this.model.material.specularMap = loader.load(packageRoot + 'assets/onepointfive_spec.png')
+            this.model.material.color = new THREE.Color(1, 1, 1)
             this.add(object)
         }.bind(this))
 
