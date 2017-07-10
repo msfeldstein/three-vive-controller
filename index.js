@@ -42,11 +42,11 @@ module.exports = function(THREE, packageRoot) {
         this.lastPosePosition = [0, 0, 0]
         this.lastPoseOrientation = [0, 0, 0, 1]
 
-        var lastPadPosition = {
+        this.lastPadPosition = {
             x: 0,
             y: 0
         }
-        var lastTriggerLevel = 0
+        this.lastTriggerLevel = 0
 
         var vivePath = packageRoot + 'assets/vr_controller_vive_1_5.obj'
         var loader = new THREE.OBJLoader()
@@ -59,99 +59,6 @@ module.exports = function(THREE, packageRoot) {
             this.add(object)
         }.bind(this))
 
-        var bindButton = function (eventOnKey, eventOffKey, button, type) {
-          var propertyName = eventOnKey[0].toLowerCase() + eventOnKey.substring(1)
-          var wasActive = this[propertyName]
-          this[propertyName] = button[type]
-          if (!wasActive && button[type]) {
-            this.emit(eventOnKey)
-          } else if (wasActive && !button[type]) {
-            this.emit(eventOffKey)
-          }
-        }.bind(this)
-
-        this.update = function() {
-            var gamepad = navigator.getGamepads()[controllerId];
-
-            if (gamepad && gamepad.pose) {
-                this.visible = true;
-
-                var padButton = gamepad.buttons[0]
-                var triggerButton = gamepad.buttons[1]
-                var gripButton = gamepad.buttons[2]
-                var menuButton = gamepad.buttons[3]
-
-                if (!this.connected) this.emit(this.Connected)
-
-                var pose = gamepad.pose;
-
-                if(pose.position && pose.orientation) {
-                    this.tracked = true
-                    this.lastPosePosition = pose.position
-                    this.lastPoseOrientation = pose.orientation
-                }
-                else {
-                    this.tracked = false
-                }
-
-                this.position.fromArray(this.lastPosePosition)
-                this.quaternion.fromArray(this.lastPoseOrientation)
-                this.matrix.compose(this.position, this.quaternion, this.scale)
-                this.matrix.multiplyMatrices(this.standingMatrix, this.matrix)
-                this.matrixWorldNeedsUpdate = true
-
-
-                bindButton(this.PadTouched, this.PadUntouched, padButton, "touched")
-                bindButton(this.PadPressed, this.PadUnpressed, padButton, "pressed")
-                bindButton(this.MenuPressed, this.MenuUnpressed, menuButton, "pressed")
-                bindButton(this.Gripped, this.Ungripped, gripButton, "pressed")
-
-                this.triggerLevel = triggerButton.value
-                if (this.triggerLevel !== lastTriggerLevel) {
-                    this.emit(this.TriggerLevel, this.triggerLevel)
-                }
-                lastTriggerLevel = this.triggerLevel
-
-                // Ensure click event is emitted after trigger level reaches 1.
-                var wasTriggerClicked = this.triggerClicked
-                this.triggerClicked = triggerButton.value == 1
-                if (!wasTriggerClicked && this.triggerClicked) {
-                    this.emit(this.TriggerClicked)
-                }
-                if (wasTriggerClicked && !this.triggerClicked) {
-                    this.emit(this.TriggerUnclicked)
-                }
-
-                this.padX = gamepad.axes[0]
-                this.padY = gamepad.axes[1]
-
-                if (this.padTouched && this.listeners(this.PadDragged) && lastPadPosition.x != null) {
-                    var dx = this.padX - lastPadPosition.x
-                    var dy = this.padY - lastPadPosition.y
-                    this.emit(this.PadDragged, dx, dy)
-                }
-
-                if (this.padTouched) {
-                    lastPadPosition.x = this.padX
-                    lastPadPosition.y = this.padY
-                } else {
-                    lastPadPosition.x = null
-                    lastPadPosition.y = null
-                }
-
-
-            } else {
-                this.visible = false;
-            }
-            this.connected = !!gamepad
-
-        }
-
-        this.startUpdating = function() {
-            this.update();
-            requestAnimationFrame(this.startUpdating);
-        }.bind(this)
-
         if (startUpdating) {
             this.startUpdating();
         }
@@ -159,6 +66,101 @@ module.exports = function(THREE, packageRoot) {
     };
 
     THREE.ViveController.prototype = Object.create(THREE.Object3D.prototype);
+
     THREE.ViveController.prototype.constructor = THREE.ViveController;
+
+    THREE.ViveController.prototype.update = function() {
+        var gamepad = navigator.getGamepads()[this.controllerId];
+
+        if (gamepad && gamepad.pose) {
+            this.visible = true;
+
+            var padButton = gamepad.buttons[0]
+            var triggerButton = gamepad.buttons[1]
+            var gripButton = gamepad.buttons[2]
+            var menuButton = gamepad.buttons[3]
+
+            if (!this.connected) this.emit(this.Connected)
+
+            var pose = gamepad.pose;
+
+            if(pose.position && pose.orientation) {
+                this.tracked = true
+                this.lastPosePosition = pose.position
+                this.lastPoseOrientation = pose.orientation
+            }
+            else {
+                this.tracked = false
+            }
+
+            this.position.fromArray(this.lastPosePosition)
+            this.quaternion.fromArray(this.lastPoseOrientation)
+            this.matrix.compose(this.position, this.quaternion, this.scale)
+            this.matrix.multiplyMatrices(this.standingMatrix, this.matrix)
+            this.matrixWorldNeedsUpdate = true
+
+
+            this.bindButton(this.PadTouched, this.PadUntouched, padButton, "touched")
+            this.bindButton(this.PadPressed, this.PadUnpressed, padButton, "pressed")
+            this.bindButton(this.MenuPressed, this.MenuUnpressed, menuButton, "pressed")
+            this.bindButton(this.Gripped, this.Ungripped, gripButton, "pressed")
+
+            this.triggerLevel = triggerButton.value
+            if (this.triggerLevel !== this.lastTriggerLevel) {
+                this.emit(this.TriggerLevel, this.triggerLevel)
+            }
+            this.lastTriggerLevel = this.triggerLevel
+
+            // Ensure click event is emitted after trigger level reaches 1.
+            var wasTriggerClicked = this.triggerClicked
+            this.triggerClicked = triggerButton.value == 1
+            if (!wasTriggerClicked && this.triggerClicked) {
+                this.emit(this.TriggerClicked)
+            }
+            if (wasTriggerClicked && !this.triggerClicked) {
+                this.emit(this.TriggerUnclicked)
+            }
+
+            this.padX = gamepad.axes[0]
+            this.padY = gamepad.axes[1]
+
+            if (this.padTouched && this.listeners(this.PadDragged) && this.lastPadPosition.x != null) {
+                var dx = this.padX - this.lastPadPosition.x
+                var dy = this.padY - this.lastPadPosition.y
+                this.emit(this.PadDragged, dx, dy)
+            }
+
+            if (this.padTouched) {
+                this.lastPadPosition.x = this.padX
+                this.lastPadPosition.y = this.padY
+            } else {
+                this.lastPadPosition.x = null
+                this.lastPadPosition.y = null
+            }
+
+
+        } else {
+            this.visible = false;
+        }
+        this.connected = !!gamepad
+
+    }
+
+    THREE.ViveController.prototype.bindButton = function (eventOnKey, eventOffKey, button, type) {
+        var propertyName = eventOnKey[0].toLowerCase() + eventOnKey.substring(1)
+        var wasActive = this[propertyName]
+        this[propertyName] = button[type]
+        if (!wasActive && button[type]) {
+            this.emit(eventOnKey)
+        } else if (wasActive && !button[type]) {
+            this.emit(eventOffKey)
+        }
+    }
+
+    THREE.ViveController.prototype.startUpdating = function() {
+        this.update();
+        requestAnimationFrame(this.startUpdating);
+    }
+
     return THREE.ViveController;
 }
