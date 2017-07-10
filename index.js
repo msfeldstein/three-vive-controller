@@ -158,8 +158,11 @@ module.exports = function(THREE, packageRoot) {
     }
 
     THREE.ViveController.prototype.startUpdating = function() {
+        var scope = this;
         this.update();
-        requestAnimationFrame(this.startUpdating);
+        requestAnimationFrame(function() {
+            scope.startUpdating()
+        })
     }
 
     return THREE.ViveController;
